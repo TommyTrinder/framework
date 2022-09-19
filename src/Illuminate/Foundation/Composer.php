@@ -40,9 +40,7 @@ class Composer {
 	 */
 	public function dumpAutoloads($extra = '')
 	{
-		$process = $this->getProcess();
-
-		$process->setCommandLine(trim($this->findComposer().' dump-autoload '.$extra));
+		$process = $this->getProcess(array_merge($this->findComposer(), ['dump-autoload', $extra]));
 
 		$process->run();
 	}
@@ -59,27 +57,23 @@ class Composer {
 
 	/**
 	 * Get the composer command for the environment.
-	 *
-	 * @return string
 	 */
-	protected function findComposer()
+	protected function findComposer(): array
 	{
 		if ($this->files->exists($this->workingPath.'/composer.phar'))
 		{
-			return '"'.PHP_BINARY.'" composer.phar';
+			return [PHP_BINARY, 'composer.phar'];
 		}
 
-		return 'composer';
+		return ['composer'];
 	}
 
 	/**
 	 * Get a new Symfony process instance.
-	 *
-	 * @return \Symfony\Component\Process\Process
 	 */
-	protected function getProcess()
+	protected function getProcess(array $command): Process
 	{
-		return (new Process('', $this->workingPath))->setTimeout(null);
+		return new Process($command, $this->workingPath, null, null, null);
 	}
 
 	/**
